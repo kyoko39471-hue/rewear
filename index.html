@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewear</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" href="closet-icon.png">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+
+    <style>
+        /* 自定义样式 */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* 浅灰色背景 */
+            background-color: #f3f4f6;
+        }
+        /* 粘性头部 */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        /* 确保内容区域可滚动 */
+        .content-area {
+            height: calc(100vh - 12rem); /* 减去头部和底部的空间 */
+            overflow-y: auto;
+        }
+        @media (min-width: 640px) {
+            .content-area {
+                height: calc(100vh - 8rem); /* 调整桌面端的头部空间 */
+            }
+        }
+        /* 自定义加载动画 */
+        .loader {
+            border-top-color: #3498db;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        #toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);  
+            transition: bottom 0.5s ease-in-out; /* 动画 */
+            z-index: 100;
+            max-width: 90%;
+            text-align: center;
+        }
+        #toast.show {
+            bottom: 30px;
+        }
+        /* 自定义模态框 */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 90;
+        }
+        .modal-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="antialiased text-slate-800">
+ 
+    <div id="not-signed-in" class="text-center py-64 hidden">
+            <i data-lucide="lock-keyhole" class="w-16 h-16 mx-auto text-blue-400 mb-4"></i>
+            <h2 class="text-xl font-bold text-slate-800 mb-2">请登录或注册以访问您的衣橱</h2>
+            <p class="text-slate-600 mb-6">使用电子邮件和密码登录或创建账户。</p>
+            
+            <form id="auth-form" class="max-w-xs mx-auto space-y-3 p-4 bg-white rounded-lg shadow-md border border-slate-200">
+                <div>
+                    <input type="email" id="auth-email" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required placeholder="电子邮箱 (Email)">
+                </div>
+                <div>
+                    <input type="password" id="auth-password" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required placeholder="密码 (Password)">
+                </div>
+                <button type="submit" id="auth-submit-btn" class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-0">
+                    <i data-lucide="log-in" class="w-5 h-5"></i> 登录
+                </button>
+                <button type="button" id="toggle-sign-up" class="w-full text-sm text-slate-500 hover:text-blue-600">
+                    还没有账户？**点击注册**
+                </button>
+            </form>
+    </div>
+        
+    <div id="loading-overlay" class="hidden fixed inset-0 bg-white/80 backdrop-blur-sm flex flex-col justify-center items-center z-[110]">
+        <div class="loader w-12 h-12 rounded-full border-4 border-gray-200 border-t-blue-500 animate-spin"></div>
+        <p id="loading-text" class="mt-4 text-lg font-medium text-slate-600">正在连接...</p>
+    </div>
+
+    <!-- navigation bar + main app area -->
+    <div class="flex max-w-7xl mx-auto min-h-screen bg-white shadow-lg">
+        <!--navigation bar-->
+        <div class="w-48 bg-slate-100 border-r border-slate-300 relative min-h-screen">
+            <div class="flex flex-col gap-y-5 mt-10">
+                <button id="nav-closet" class="py-2 w-full font-bold text-yellow-500">
+                    衣橱软件
+                </button>
+                <button id="nav-makeup" class="py-2 w-full font-bold text-yellow-500">
+                    化妆品软件
+                </button>
+            </div>
+            <button id="sign-out-button" class="w-full text-sm font-semibold text-yellow-500 absolute bottom-20 left-0">
+            🐱sign out
+            </button>
+        </div>
+        <!--app display-->
+        <div class="max-w-4xl mx-auto min-h-screen bg-white shadow-lg py-6 flex-1">
+
+            <div id="app-closet">
+                <header class="sticky-header bg-white border-b border-slate-200 p-4 shadow-sm">
+                    <div class="items-center">
+                        <h1 class="text-2xl font-bold text-blue-600 text-center">
+                            <i data-lucide="shirt" class="inline-block -mt-1"></i>
+                            我的衣橱 (Cost Per Wear)
+                        </h1>
+                        
+                    </div>
+                    <nav class="mt-4">
+                        <div class="flex border-b border-slate-200">
+                            <button id="closet-tab-overview" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-blue-600 border-b-2 border-blue-600 flex items-center justify-center gap-2" >
+                                <i data-lucide="warehouse" class="w-5 h-5"></i>
+                                衣橱总览
+                            </button>
+                            <button id="closet-tab-log" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-blue-500 flex items-center justify-center gap-2" >
+                                <i data-lucide="calendar-plus" class="w-5 h-5"></i>
+                                记录穿搭
+                            </button>
+                            <button id="closet-tab-history" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-blue-500 flex items-center justify-center gap-2" >
+                                <i data-lucide="history" class="w-5 h-5"></i>
+                                穿搭历史
+                            </button>
+                            <button id="closet-tab-add" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-blue-500 flex items-center justify-center gap-2" >
+                                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                                添加新衣
+                            </button>
+                        </div>
+                    </nav>
+                </header>
+                <main class="p-4 sm:p-6">
+                    
+                    <div id="closet-page-overview" class="page-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-center w-full mx-auto">衣橱总览</h2>
+                        </div>
+                        
+                        <div class="hidden sm:block overflow-x-auto rounded-lg border border-slate-200">
+                            <table class="min-w-full divide-y divide-slate-200">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">品牌</th>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">类型</th>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">名称</th>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">价格</th>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">已穿</th>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">CPW</th>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="closet-table-body" class="bg-white divide-y divide-slate-200">
+                                    <tr id="closet-empty-row"><td colspan="6" class="p-6 text-center text-slate-500">衣橱是空的，快去添加新衣服吧！</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="closet-card-list" class="sm:hidden space-y-3">
+                            <div id="closet-empty-card" class="p-6 text-center text-slate-500 bg-white rounded-lg shadow-sm">衣橱是空的，快去添加新衣服吧！</div>
+                        </div>
+                    </div>
+
+                    <div id="closet-page-log" class="page-content hidden">
+                        <h2 class="text-xl font-semibold mb-4">记录今日穿搭 (Today's Outfit)</h2>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                            <p class="text-slate-600 mb-4">请选择你今天穿了的衣服：</p>
+                            <div id="log-wear-list" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                                <p id="log-empty-list" class="text-center text-slate-500 py-4">衣橱里没有衣服哦。</p>
+                            </div>
+                            <button id="submit-log-wear" class="mt-6 w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2">
+                                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                                确认记录
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="closet-page-history" class="page-content hidden">
+                        <h2 class="text-xl font-semibold mb-4">我的穿搭历史</h2>
+                        <div id="history-list" class="space-y-4">
+                            <p id="history-empty" class="p-6 text-center text-slate-500 bg-white rounded-lg shadow-sm">还没有穿搭记录哦。</p>
+                        </div>
+                    </div>
+
+                    <div id="closet-page-add" class="page-content hidden">
+                        <h2 class="text-xl font-semibold mb-4">添加新衣服</h2>
+                        <form id="closet-add-item-form" class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 space-y-4">
+                            <div>
+                                <label for="closet-brand-select" class="block text-sm font-medium text-slate-700">品牌 (Brand)</label>
+                                <select id="closet-brand-select" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                <option value="">-- 请选择品牌 --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="closet-item-type" class="block text-sm font-medium text-slate-700">类型 (Type)</label>
+                                <select id="closet-item-type" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                    <option value="">-- 请选择类型 --</option>
+                                    <option value="accessory">配饰 (Accessory)</option>
+                                    <option value="cami">吊带 (Cami)</option>
+                                    <option value="cardigan">开衫 (Cardigan)</option>
+                                    <option value="dress">连衣裙 (Dress)</option>
+                                    <option value="jacket">外套 (Jacket)</option>
+                                    <option value="long-sleeve">长袖 (Long-sleeve)</option>
+                                    <option value="pants">裤子 (Pants)</option>
+                                    <option value="short-sleeve">短袖 (Short-sleeve)</option>
+                                    <option value="skirt">裙子 (Skirt)</option>
+                                    <option value="sleepwear-top">睡衣top (sleepwear-top)</option>
+                                    <option value="sleepwear-bottom">睡衣bottom (sleepwear-bottom)</option>
+                                    <option value="other">其他 (Other)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="closet-item-name" class="block text-sm font-medium text-slate-700">衣服名称 (Name)</label>
+                                <input type="text" id="closet-item-name" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required placeholder="例如: 灰色卫衣">
+                            </div>
+                            <div>
+                                <label for="closet-item-price" class="block text-sm font-medium text-slate-700">价格 (Price)</label>
+                                <input type="number" id="closet-item-price" min="0" step="0.01" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required placeholder="例如: 40.00">
+                            </div>
+                            <div>
+                                <label for="closet-item-times-worn" class="block text-sm font-medium text-slate-700">初始已穿次数 (Times Worn)</label>
+                                <input type="number" id="closet-item-times-worn" min="0" step="1" value="0" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                            </div>
+                            <button type="submit" class="w-full bg-green-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center gap-2">
+                                <i data-lucide="save" class="w-5 h-5"></i>
+                                保存到衣橱
+                            </button>
+                        </form>
+                    </div>
+                </main>
+            </div>
+
+            <div id="app-makeup" class="hidden">
+                <header class="sticky-header bg-white border-b border-slate-200 p-4 shadow-sm">
+                    <div class="items-center">
+                        <h1 class="text-2xl font-bold text-blue-600 text-center">
+                            <i data-lucide="shirt" class="inline-block -mt-1"></i>
+                            我的化妆品 (My Makeup Shelf)
+                        </h1>
+                        
+                    </div>
+                    <nav class="mt-4">
+                        <div class="flex border-b border-slate-200">
+                            <button id="makeup-tab-overview" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-blue-600 border-b-2 border-blue-600 flex items-center justify-center gap-2" >
+                                <i data-lucide="warehouse" class="w-5 h-5"></i>
+                                Overview
+                            </button>
+                            <button id="makeup-tab-log" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-blue-500 flex items-center justify-center gap-2" >
+                                <i data-lucide="calendar-plus" class="w-5 h-5"></i>
+                                Makeup Log
+                            </button>
+                            <button id="makeup-tab-history" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-blue-500 flex items-center justify-center gap-2" >
+                                <i data-lucide="history" class="w-5 h-5"></i>
+                                Wearing History
+                            </button>
+                            <button id="makeup-tab-add" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-blue-500 flex items-center justify-center gap-2" >
+                                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                                Add New Makeup
+                            </button>
+                        </div>
+                    </nav>
+                </header>
+                <main class="p-4 sm:p-6">
+                    <div id="makeup-page-overview" class="page-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-center w-full mx-auto">Makeups</h2>
+                        </div>
+                    
+                        <div class="hidden sm:block overflow-x-auto rounded-lg border border-slate-200">
+                            <table class="min-w-full divide-y divide-slate-200">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">品牌</th>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">类型</th>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">名称</th>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">价格</th>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">已用</th>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">CPW</th>
+                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="makeup-table-body" class="bg-white divide-y divide-slate-200">
+                                    <tr id="makeup-empty-row"><td colspan="6" class="p-6 text-center text-slate-500">这里是空的，快去添加新化妆品吧！</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="makeup-card-list" class="sm:hidden space-y-3">
+                            <div id="makeup-empty-card" class="p-6 text-center text-slate-500 bg-white rounded-lg shadow-sm">这里是空的，快去添加新化妆品吧！</div>
+                        </div>
+
+                    </div>
+                    <div id="makeup-page-log" class="page-content hidden">
+                        <h2 class="text-xl font-semibold mb-4">记录今日化妆品 (Today's Makeup)</h2>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                            <p class="text-slate-600 mb-4">请选择你今天使用的化妆品：</p>
+                            <div id="makeup-log-wear-list" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                                <p id="makeup-log-empty-list" class="text-center text-slate-500 py-4">柜子里没有化妆品哦。</p>
+                            </div>
+                            <button id="makeup-submit-log-wear" class="mt-6 w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2">
+                                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                                确认记录
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="makeup-page-history" class="page-content hidden">
+                        <h2 class="text-xl font-semibold mb-4">我的使用历史</h2>
+                        <div id="makeup-history-list" class="space-y-4">
+                            <p id="makeup-history-empty" class="p-6 text-center text-slate-500 bg-white rounded-lg shadow-sm">还没有使用记录哦。</p>
+                        </div>
+                    </div>
+
+                    <div id="makeup-page-add" class="page-content hidden">
+                        <h2 class="text-xl font-semibold mb-4">添加新化妆品</h2>
+                        <form id="makeup-add-item-form" class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 space-y-4">
+                            <div>
+                                <label for="makeup-brand-select" class="block text-sm font-medium text-slate-700">品牌 (Brand)</label>
+                                <select id="makeup-brand-select" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                <option value="">-- 请选择品牌 --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="makeup-item-type" class="block text-sm font-medium text-slate-700">类型 (Type)</label>
+                                <select id="makeup-item-type" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                    <option value="">-- 请选择类型 --</option>
+                                    <option value="foundation">粉底液 (foundation)</option>
+                                    <option value="blush">腮红 (blush)</option>
+                                    <option value="lipstick">口红 (lipstick)</option>
+                                    <option value="lip-gloss">唇彩 (lip-gloss)</option>
+                                    <option value="primer">妆前隔离 (primer)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="makeup-item-name" class="block text-sm font-medium text-slate-700">化妆品名称 (Name)</label>
+                                <input type="text" id="makeup-item-name" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required placeholder="例如: 灰色卫衣">
+                            </div>
+                            <div>
+                                <label for="makeup-item-price" class="block text-sm font-medium text-slate-700">价格 (Price)</label>
+                                <input type="number" id="makeup-item-price" min="0" step="0.01" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required placeholder="例如: 40.00">
+                            </div>
+                            <div>
+                                <label for="makeup-item-times-worn" class="block text-sm font-medium text-slate-700">初始已使用次数 (Times Worn)</label>
+                                <input type="number" id="makeup-item-times-worn" min="0" step="1" value="0" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                            </div>
+                            <button type="submit" class="w-full bg-green-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center gap-2">
+                                <i data-lucide="save" class="w-5 h-5"></i>
+                                保存到化妆品柜
+                            </button>
+                        </form>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- others -->
+    <div id="toast" class="py-3 px-5 rounded-lg shadow-lg text-white font-semibold">
+        <span id="toast-message"></span>
+    </div>
+
+    <div id="delete-modal" class="hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content w-full max-w-sm bg-white rounded-lg shadow-xl p-6">
+            <h3 class="text-lg font-bold text-slate-800">确认删除</h3>
+            <p class="text-sm text-slate-600 mt-2">你确定要删除这个物品吗？这个操作无法撤销。</p>
+            <p id="delete-item-name" class="text-sm text-center font-semibold bg-slate-100 p-2 my-4 rounded"></p>
+            <div class="flex justify-end gap-3 mt-6">
+                <button id="cancel-delete" class="py-2 px-4 rounded-md text-sm font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300">
+                    取消
+                </button>
+                <button id="confirm-delete" data-mode="item" class="py-2 px-4 rounded-md text-sm font-semibold bg-red-600 text-white hover:bg-red-700">
+                    确认删除
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/js/main.js"></script>
+
+</body>
+</HTML>
