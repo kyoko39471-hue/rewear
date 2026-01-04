@@ -185,6 +185,7 @@ export function init() {
         "NARS",
         "Rare Beauty",
         "Refy",
+        "Saie",
         "Uriage",
     ];
 
@@ -442,6 +443,7 @@ export function init() {
     switchTab('overview');
 
 }
+
 
 
 
