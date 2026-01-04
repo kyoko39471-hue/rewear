@@ -45,7 +45,7 @@
                 transform: rotate(360deg);
             }
         }
-        
+
         #toast {
             position: fixed;
             bottom: -100px;
@@ -76,12 +76,12 @@
     </style>
 </head>
 <body class="antialiased text-slate-800">
- 
+
     <div id="not-signed-in" class="text-center py-64 hidden">
             <i data-lucide="lock-keyhole" class="w-16 h-16 mx-auto text-blue-400 mb-4"></i>
             <h2 class="text-xl font-bold text-slate-800 mb-2">请登录或注册以访问您的衣橱</h2>
             <p class="text-slate-600 mb-6">使用电子邮件和密码登录或创建账户。</p>
-            
+
             <form id="auth-form" class="max-w-xs mx-auto space-y-3 p-4 bg-white rounded-lg shadow-md border border-slate-200">
                 <div>
                     <input type="email" id="auth-email" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required placeholder="电子邮箱 (Email)">
@@ -97,7 +97,7 @@
                 </button>
             </form>
     </div>
-        
+
     <div id="loading-overlay" class="hidden fixed inset-0 bg-white/80 backdrop-blur-sm flex flex-col justify-center items-center z-[110]">
         <div class="loader w-12 h-12 rounded-full border-4 border-gray-200 border-t-blue-500 animate-spin"></div>
         <p id="loading-text" class="mt-4 text-lg font-medium text-slate-600">正在连接...</p>
@@ -129,7 +129,7 @@
                             <i data-lucide="shirt" class="inline-block -mt-1"></i>
                             我的衣橱 (Cost Per Wear)
                         </h1>
-                        
+
                     </div>
                     <nav class="mt-4">
                         <div class="flex border-b border-slate-200">
@@ -153,12 +153,12 @@
                     </nav>
                 </header>
                 <main class="p-4 sm:p-6">
-                    
+
                     <div id="closet-page-overview" class="page-content">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-xl font-semibold text-center w-full mx-auto">衣橱总览</h2>
                         </div>
-                        
+
                         <div class="hidden sm:block overflow-x-auto rounded-lg border border-slate-200">
                             <table class="min-w-full divide-y divide-slate-200">
                                 <thead class="bg-slate-50">
@@ -196,7 +196,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <div id="closet-page-history" class="page-content hidden">
                         <h2 class="text-xl font-semibold mb-4">我的穿搭历史</h2>
                         <div id="history-list" class="space-y-4">
@@ -259,7 +259,7 @@
                             <i data-lucide="shirt" class="inline-block -mt-1"></i>
                             我的化妆品 (My Makeup Shelf)
                         </h1>
-                        
+
                     </div>
                     <nav class="mt-4">
                         <div class="flex border-b border-slate-200">
@@ -287,7 +287,7 @@
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-xl font-semibold text-center w-full mx-auto">Makeups</h2>
                         </div>
-                    
+
                         <div class="hidden sm:block overflow-x-auto rounded-lg border border-slate-200">
                             <table class="min-w-full divide-y divide-slate-200">
                                 <thead class="bg-slate-50">
@@ -351,7 +351,6 @@
                                     <option value="lipstick">口红 (lipstick)</option>
                                     <option value="lip-gloss">唇彩 (lip-gloss)</option>
                                     <option value="primer">妆前隔离 (primer)</option>
-                                    <option value="appliance">家电 </option>
                                 </select>
                             </div>
                             <div>
@@ -400,6 +399,9 @@
     </div>
 
     <script type="module" src="/js/main.js"></script>
+    <script type="module" src="./js/main.js"></script>
 
 </body>
+</HTML>
+
 </HTML>
