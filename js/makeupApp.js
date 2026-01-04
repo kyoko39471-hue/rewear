@@ -176,6 +176,7 @@ export function init() {
     //第4页：增加新化妆品
 
     const MakeupBrands = [
+        "Appliance",
         "Anastasia",
         "Chanel",
         "Clinique",
@@ -439,3 +440,4 @@ export function init() {
     switchTab('overview');
 
 }
+
