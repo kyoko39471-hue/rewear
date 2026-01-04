@@ -180,6 +180,7 @@ export function init() {
         "Anastasia",
         "Chanel",
         "Clinique",
+        "CPB",
         "Fenty",
         "Ilia",
         "NARS",
@@ -443,6 +444,7 @@ export function init() {
     switchTab('overview');
 
 }
+
 
 
 
