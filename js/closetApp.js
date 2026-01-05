@@ -4,7 +4,8 @@ import {
     collection,
     doc,
     updateDoc,
-    increment
+    increment,
+    deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 import {db} from "./firebase.js";
@@ -43,11 +44,15 @@ const BRANDS = [
     "hotwind",
     "Lululemon",
     "MLB",
+    "Mucent",
     "Olive des Olive",
     "OOMOMO",
+    "SMFK",
     "Sistina",
     "Trader Joes",
+    "Twee",
     "Uniqlo",
+    "zeroplanet",
 ];
 
 const brand = app.querySelector('#closet-brand-select');
@@ -186,6 +191,12 @@ async function handleAddItem(e) {
 addItemForm.addEventListener('submit', handleAddItem);
 
 //page 1 我的衣橱：1）函数
+const deleteModal = document.getElementById('delete-modal');
+const deleteItemName = document.getElementById('delete-item-name');
+const cancelDeleteBtn = document.getElementById('cancel-delete');
+const confirmDeleteBtn = document.getElementById('confirm-delete');
+let pendingDeleteItemId = null;
+
 async function renderCloset() {
     const closetRef = getClosetRef();
     if (!closetRef) return;   // <-- prevents future crashes
@@ -231,11 +242,54 @@ async function renderCloset() {
                     ${item.timesWorn} 次
                 </td>
                 <td class="py-4 px-4 whitespace-nowrap text-sm font-bold ${CPWColor}">${CPW}</td>
+                <td class="py-4 px-4 whitespace-nowrap text-sm">
+                    <button 
+                        class="delete-item-btn text-gray-600 hover:text-red-800 text-sm font-semibold"
+                        data-id="${item.id}"
+                        data-name="${escapeHTML(item.name)}"
+                    >
+                        x
+                    </button>
+                </td>
             </tr>`;
     });
     tbody.innerHTML = html;
 }
+//delete 功能
+const closetTableBody = document.getElementById("closet-table-body");
 
+closetTableBody.addEventListener('click', (e) => {
+    const btn = e.target.closest('.delete-item-btn');
+    if (!btn) return;
+
+    pendingDeleteItemId = btn.dataset.id;
+    deleteItemName.textContent = btn.dataset.name;
+
+    deleteModal.classList.remove('hidden');
+});
+
+cancelDeleteBtn.addEventListener('click', () => {
+    pendingDeleteItemId = null;
+    deleteModal.classList.add('hidden');
+});
+
+confirmDeleteBtn.addEventListener('click', async () => {
+    if (!pendingDeleteItemId) return;
+
+    const closetRef = getClosetRef();
+    if (!closetRef) return;
+
+    const itemRef = doc(closetRef, pendingDeleteItemId);
+
+    await deleteDoc(itemRef);
+
+    showToast("物品已删除", "success");
+
+    pendingDeleteItemId = null;
+    deleteModal.classList.add('hidden');
+
+    renderCloset();
+});
 //page 2 添加记录 1）定义常量 2）render第二页 3）点击tab时启动render 4) async function 5) eventListener
 const logWearList = app.querySelector('#log-wear-list');
 const logEmptyList = app.querySelector('#log-empty-list');

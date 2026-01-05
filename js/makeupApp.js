@@ -4,7 +4,8 @@ import {
     collection,
     doc,
     updateDoc,
-    increment
+    increment,
+    deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 import {db} from "./firebase.js";
