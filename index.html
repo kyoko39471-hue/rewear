@@ -25,11 +25,7 @@
             top: 0;
             z-index: 50;
         }
-        /* 确保内容区域可滚动 */
-        .content-area {
-            height: calc(100vh - 12rem); /* 减去头部和底部的空间 */
-            overflow-y: auto;
-        }
+
         @media (min-width: 640px) {
             .content-area {
                 height: calc(100vh - 8rem); /* 调整桌面端的头部空间 */
@@ -104,9 +100,10 @@
     </div>
 
     <!-- navigation bar + main app area -->
-    <div class="flex max-w-7xl mx-auto min-h-screen bg-white shadow-lg">
+    <div class="flex flex-col sm:flex-row max-w-7xl mx-auto bg-white shadow-lg">
+        
         <!--navigation bar-->
-        <div class="w-48 bg-slate-100 border-r border-slate-300 relative min-h-screen">
+        <div class="hidden sm:block w-48 bg-slate-100 border-r border-slate-300 relative min-h-screen">
             <div class="flex flex-col gap-y-5 mt-10">
                 <button id="nav-closet" class="py-2 w-full font-bold text-yellow-500">
                     衣橱软件
@@ -119,6 +116,19 @@
             🐱sign out
             </button>
         </div>
+  
+        <!-- Mobile Top Navigation -->
+        <div class="sm:hidden bg-slate-100 border-b border-slate-300">
+            <div class="flex justify-around py-3">
+                <button id="mobile-nav-closet" class="font-bold text-yellow-500">
+                    衣橱
+                </button>
+                <button id="mobile-nav-makeup" class="font-bold text-yellow-500">
+                    化妆品
+                </button>
+            </div>
+        </div>
+
         <!--app display-->
         <div class="max-w-4xl mx-auto min-h-screen bg-white shadow-lg py-6 flex-1">
 
@@ -159,7 +169,7 @@
                             <h2 class="text-xl font-semibold text-center w-full mx-auto">衣橱总览</h2>
                         </div>
 
-                        <div class="hidden sm:block overflow-x-auto rounded-lg border border-slate-200">
+                        <div class="overflow-x-auto rounded-lg border border-slate-200">
                             <table class="min-w-full divide-y divide-slate-200">
                                 <thead class="bg-slate-50">
                                     <tr>
@@ -173,14 +183,11 @@
                                     </tr>
                                 </thead>
                                 <tbody id="closet-table-body" class="bg-white divide-y divide-slate-200">
-                                    <tr id="closet-empty-row"><td colspan="6" class="p-6 text-center text-slate-500">衣橱是空的，快去添加新衣服吧！</td></tr>
+                                    <tr id="closet-empty-row"><td colspan="7" class="p-6 text-center text-slate-500">衣橱是空的，快去添加新衣服吧！</td></tr>
                                 </tbody>
                             </table>
                         </div>
-
-                        <div id="closet-card-list" class="sm:hidden space-y-3">
-                            <div id="closet-empty-card" class="p-6 text-center text-slate-500 bg-white rounded-lg shadow-sm">衣橱是空的，快去添加新衣服吧！</div>
-                        </div>
+                       
                     </div>
 
                     <div id="closet-page-log" class="page-content hidden">
@@ -289,7 +296,7 @@
                             <h2 class="text-xl font-semibold text-center w-full mx-auto">Makeups</h2>
                         </div>
 
-                        <div class="hidden sm:block overflow-x-auto rounded-lg border border-slate-200">
+                        <div class="overflow-x-auto rounded-lg border border-slate-200">
                             <table class="min-w-full divide-y divide-slate-200">
                                 <thead class="bg-slate-50">
                                     <tr>
@@ -303,13 +310,9 @@
                                     </tr>
                                 </thead>
                                 <tbody id="makeup-table-body" class="bg-white divide-y divide-slate-200">
-                                    <tr id="makeup-empty-row"><td colspan="6" class="p-6 text-center text-slate-500">这里是空的，快去添加新化妆品吧！</td></tr>
+                                    <tr id="makeup-empty-row"><td colspan="7" class="p-6 text-center text-slate-500">这里是空的，快去添加新化妆品吧！</td></tr>
                                 </tbody>
                             </table>
-                        </div>
-
-                        <div id="makeup-card-list" class="sm:hidden space-y-3">
-                            <div id="makeup-empty-card" class="p-6 text-center text-slate-500 bg-white rounded-lg shadow-sm">这里是空的，快去添加新化妆品吧！</div>
                         </div>
 
                     </div>
@@ -407,7 +410,6 @@
         </div>
     </div>
 
-    <script type="module" src="/js/main.js"></script>
     <script type="module" src="./js/main.js"></script>
 
 </body>

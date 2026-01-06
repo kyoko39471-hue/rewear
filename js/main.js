@@ -62,6 +62,8 @@ export function showToast(message, type = 'info') {
 //switchApp
 const appCloset = document.getElementById("app-closet");
 const appMakeup = document.getElementById("app-makeup");
+const mobileNavCloset = document.getElementById("mobile-nav-closet");
+const mobileNavMakeup = document.getElementById("mobile-nav-makeup");
 function switchApp(appName) {
     // 先全部隐藏
     appCloset.classList.add("hidden");
@@ -87,6 +89,15 @@ document
     .addEventListener("click", () => {
         switchApp("makeup");
     });
+
+mobileNavCloset.addEventListener("click", () => {
+    switchApp("closet");
+});
+
+mobileNavMakeup.addEventListener("click", () => {
+    switchApp("makeup");
+});
+
 //登录前显示登录页，用户名为空；登录后显示软件，更新用户名
 onAuthStateChanged(auth, (user) => {
     if (user) {

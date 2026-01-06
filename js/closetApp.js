@@ -52,7 +52,7 @@ const BRANDS = [
     "Trader Joes",
     "Twee",
     "Uniqlo",
-    "zeroplanet",
+    "Zeroplanet",
 ];
 
 const brand = app.querySelector('#closet-brand-select');
@@ -255,6 +255,7 @@ async function renderCloset() {
     });
     tbody.innerHTML = html;
 }
+
 //delete 功能
 const closetTableBody = document.getElementById("closet-table-body");
 
