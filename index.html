@@ -165,20 +165,32 @@
                 <main class="p-4 sm:p-6">
 
                     <div id="closet-page-overview" class="page-content">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-semibold text-center w-full mx-auto">衣橱总览</h2>
+                        <div class="px-6 py-4 border-bottom border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
+                                <div>
+                                    <h2 class="text-lg font-semibold text-slate-800">我的衣橱</h2>
+                                    <p class="text-sm text-slate-500">管理物品收藏与穿搭成本</p>
+                                </div>
+                            
+                            <div class="flex items-center gap-3">
+                                <label for="closet-sort-select" class="text-sm font-medium text-slate-600 whitespace-nowrap">排序方式:</label>
+                                <select id="closet-sort-select" class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 transition-all outline-none">
+                                    <option value="default">默认 (品牌/类型/CPW)</option>
+                                    <option value="type">按类型</option>
+                                    <option value="cpw">按次均成本 (CPW)</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="overflow-x-auto rounded-lg border border-slate-200">
                             <table class="min-w-full divide-y divide-slate-200">
                                 <thead class="bg-slate-50">
                                     <tr>
-                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">品牌</th>
-                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">类型</th>
+                                        <th id="sort-brand-closet" class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer"">品牌</th>
+                                        <th id="sort-type-closet" class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer">类型</th>
                                         <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">名称</th>
                                         <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">价格</th>
                                         <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">已穿</th>
-                                        <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">CPW</th>
+                                        <th id="sort-cpw-closet" class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer">CPW</th>
                                         <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">操作</th>
                                     </tr>
                                 </thead>

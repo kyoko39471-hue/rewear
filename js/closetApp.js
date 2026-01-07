@@ -137,31 +137,48 @@ function getClosetRef (){
 }
 
 //5. sort
+let currentSortMode = 'default';
+
 function sortCloset(closet) {
     return closet.slice().sort((a, b) => {
         const brandA = a.brand;
         const brandB = b.brand;
-
-        const byBrand = brandA.localeCompare(brandB);
-        if (byBrand !== 0) {
-            return byBrand;
-        }
-
-        // 2) Type 升序
-        const typeA = (a.type);
-        const typeB = (b.type);
-        const byType = typeA.localeCompare(typeB);
-        if (byType !== 0) {
-            return byType;
-        }
-
-        // 3) CPW 降序（越贵排越前）
+        const typeA = a.type;
+        const typeB = b.type;
         const cpwA = parseFloat(calculateCPW(a.price, a.timesWorn));
         const cpwB = parseFloat(calculateCPW(b.price, b.timesWorn));
-        return cpwB - cpwA;
 
+        switch (currentSortMode) {
+            case 'type':
+                // 1. Type (ASC), 2. Brand (ASC), 3. CPW (DESC)
+                if (typeA.localeCompare(typeB) !== 0) return typeA.localeCompare(typeB);
+                if (brandA.localeCompare(brandB) !== 0) return brandA.localeCompare(brandB);
+                return cpwB - cpwA;
+
+            case 'cpw':
+                // 1. CPW (DESC), 2. Brand (ASC), 3. Type (ASC)
+                if (cpwB - cpwA !== 0) return cpwB - cpwA;
+                if (brandA.localeCompare(brandB) !== 0) return brandA.localeCompare(brandB);
+                return typeA.localeCompare(typeB);
+
+            case 'default':
+            default:
+                // 1. Brand (ASC), 2. Type (ASC), 3. CPW (DESC)
+                if (brandA.localeCompare(brandB) !== 0) return brandA.localeCompare(brandB);
+                if (typeA.localeCompare(typeB) !== 0) return typeA.localeCompare(typeB);
+                return cpwB - cpwA;
+        }
     });
 }
+
+const sortSelect = document.getElementById('closet-sort-select');
+if (sortSelect) {
+    sortSelect.addEventListener('change', (e) => {
+        currentSortMode = e.target.value;
+        renderCloset(); // Re-render the closet with the new sorting
+    });
+}
+
 
 //接下来才是一页一页的代码~~~ 嘿嘿
 

@@ -1,3 +1,21 @@
+  <tr>
+      <th id="sort-brand-closet" class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">品牌</th>
+      <th id="sort-category-closet" class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">类型</th>
+      <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">名称</th>
+      <th id="sort-price-closet" class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">价格</th>
+      <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">已穿</th>
+      <th id="sort-cpw-closet" class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">CPW</th>
+      <th class="py-3 px-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">操作</th>
+  </tr>
+
+
+
+
+
+
+
+
+
 是否“够不够用作计算机专业申请 sample”，取决于你**如何呈现它、你强调了哪些技术决策，而不是功能表面复杂度**。
 
 我分三个层次来回答。
