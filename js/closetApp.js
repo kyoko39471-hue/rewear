@@ -270,7 +270,32 @@ async function renderCloset() {
                 </td>
             </tr>`;
     });
+    
     tbody.innerHTML = html;
+    
+    //计算总库存价值
+    let totalInventoryValue = 0;
+    closetItems.forEach(item => {
+        totalInventoryValue += item.price;
+    });
+    app.querySelector("#total-inventory-value").textContent = `$${totalInventoryValue.toFixed(2)}`;
+
+    //计算平均CPW
+    let totalCost = 0;
+    let totalWears = 0;
+
+    closetItems.forEach(item => {
+        totalCost += item.price;
+        totalWears += item.timesWorn;
+    });
+
+    let avgCPW = 0;
+    if (totalWears > 0) {
+        avgCPW = totalCost / totalWears;
+    } else {
+        avgCPW = totalCost; // If no wears, CPW is effectively the total cost
+    }
+    app.querySelector("#avg-cost-per-use").textContent = `$${avgCPW.toFixed(2)}`;
 }
 
 //delete 功能
