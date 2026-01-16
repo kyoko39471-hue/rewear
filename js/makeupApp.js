@@ -179,6 +179,7 @@ export function init() {
     const MakeupBrands = [
         "Appliance",
         "Anastasia",
+        "Armani",
         "Chanel",
         "Clinique",
         "CPB",

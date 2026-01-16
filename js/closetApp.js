@@ -49,6 +49,7 @@ const BRANDS = [
     "OOMOMO",
     "SMFK",
     "Sistina",
+    "Tatiana",
     "Trader Joes",
     "Twee",
     "Uniqlo",
